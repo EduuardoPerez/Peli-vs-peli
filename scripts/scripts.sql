@@ -14,3 +14,4 @@ VALUES (1,'¿Cuál es la mejor comedia?'),
        (7,'¿Cuál es la película con peores efectos especiales?'),
        (8,'¿Cuál es la película que más te hizo reir?'),
        (9,'¿Qué película de Transformers prefieres?');
+       

@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 // Rutas
-app.get('/competencias', controlador.competir);
+app.get('/competencias', controlador.obtenerCompetencias);
 
 
 // Puerto donde corre el servidor
