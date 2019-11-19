@@ -23,6 +23,7 @@ CREATE TABLE `competencias`.`pelicula_competencia` (
   `competencia_id` INT NOT NULL,
   PRIMARY KEY (`id`));
 
+
 INSERT INTO `competencias`.`pelicula_competencia` (`id`, `pelicula_id`, `competencia_id`) VALUES ('1', '50', '1');
 INSERT INTO `competencias`.`pelicula_competencia` (`id`, `pelicula_id`, `competencia_id`) VALUES ('2', '300', '1');
 INSERT INTO `competencias`.`pelicula_competencia` (`id`, `pelicula_id`, `competencia_id`) VALUES ('3', '200', '2');
@@ -42,3 +43,10 @@ INSERT INTO `competencias`.`pelicula_competencia` (`id`, `pelicula_id`, `compete
 INSERT INTO `competencias`.`pelicula_competencia` (`id`, `pelicula_id`, `competencia_id`) VALUES ('17', '232', '9');
 INSERT INTO `competencias`.`pelicula_competencia` (`id`, `pelicula_id`, `competencia_id`) VALUES ('18', '678', '9');
 
+
+CREATE TABLE `competencias`.`voto` (
+  `id` INT NOT NULL,
+  `cantidad` INT NOT NULL DEFAULT 0,
+  `pelicula_id` INT NOT NULL,
+  `competencia_id` INT NOT NULL,
+  PRIMARY KEY (`id`));

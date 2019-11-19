@@ -26,7 +26,7 @@ const obtenerCompetencias = async (req, res) => {
   if(competencias===404){
     return res.status(competencias).send('Hubo un error en la consulta para obtener las competencias');
   }
-  res.send(JSON.stringify(competencias));
+  return res.status(200).send(JSON.stringify(competencias));
 };
 
 
@@ -45,19 +45,69 @@ const obtenerOpciones = async (req, res) => {
                           WHERE pelicula_competencia.competencia_id = ${competenciaId};`;
 
   const competencia = await ejecutarQuery(sqlCompetencia, 'el nombre de la competencia');
-  const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia')
+
+  if(competencia.length===0){
+    return res.status(404).send('No existe la competencia para el ID indicado');
+  }
+  
+  const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia');
 
   if(competencia===404 || peliculas===404){
-    return res.status(opciones).send('Hubo un error en la consulta para obtener las opciones');
+    return res.status(404).send('Hubo un error en la consulta para obtener las opciones');
   }
   const respuesta = {
     "competencia": competencia[0].competencia,
     "peliculas": peliculas
-  }  
-  res.send(JSON.stringify(respuesta));
+  }
+  return res.status(200).send(JSON.stringify(respuesta));
+};
+
+
+// Suma un voto a la pelicula según la competencia en la que esté
+const sumarVoto = async (req, res) => {
+
+  const competenciaId = req.params.id;
+  const peliculaId = req.body.idPelicula;
+
+  sqlCompetenciaPelicula = `SELECT id FROM pelicula_competencia WHERE competencia_id = ${competenciaId} AND pelicula_id = ${peliculaId};` 
+  const existeCompetencia = await ejecutarQuery(sqlCompetenciaPelicula, 'la compencia según la película');
+
+  if(!existeCompetencia){
+    return res.status(404).send('No exite la competencia');
+  }
+
+  sqlCantidadVoto = `SELECT cantidad FROM voto WHERE competencia_id = ${competenciaId} AND pelicula_id = ${peliculaId};`;
+  const cantidadDeVotos = await ejecutarQuery(sqlCantidadVoto, 'la cantidad de votos');
+
+  if(cantidadDeVotos.length===0) {
+    const sqlNuevoIdVoto = `SELECT id+1 AS id FROM voto ORDER BY id DESC LIMIT 1;`;
+    const queryNuevoIdVoto = await ejecutarQuery(sqlNuevoIdVoto, 'el último ID de la tabla voto');
+
+    if(queryNuevoIdVoto===404) {
+      return res.status(404).send('No se pudo obtener nuevo id para hacer la insercion en la tabla voto');
+    }
+    
+    const votoId = queryNuevoIdVoto[0].id;
+    const sqlInsertarVoto = `INSERT INTO voto (id, cantidad, pelicula_id, competencia_id) VALUES (${votoId}, 1, ${peliculaId}, ${competenciaId});`;
+    const queryInsertarVoto = await ejecutarQuery(sqlInsertarVoto, 'INSERTAR LA NUEVA FILA EN LA TABLA voto');
+    
+    if(queryInsertarVoto===404) {
+      return res.status(404).send('No se pudo insertar el nuevo voto');
+    }
+    return res.status(200).send('Se sumo el voto a la pelicula');
+  }
+
+  const sqlActualizarCantidadVoto = `UPDATE voto SET cantidad = ${cantidadDeVotos[0].cantidad+1} WHERE competencia_id = ${competenciaId} AND pelicula_id = ${peliculaId};`;
+  const queryActualizarCantidadVoto = await ejecutarQuery(sqlActualizarCantidadVoto, 'SUMAR UN PUNTO A LA CANTIADA DE VOTOS');
+
+  if(queryActualizarCantidadVoto===404) {
+    return res.status(404).send('No se pudo sumar el voto a la pelicula');
+  }
+  return res.status(200).send('Se sumo el voto a la pelicula');
 };
 
 module.exports = {
   obtenerCompetencias: obtenerCompetencias,
-  obtenerOpciones: obtenerOpciones
+  obtenerOpciones: obtenerOpciones,
+  sumarVoto: sumarVoto
 };
