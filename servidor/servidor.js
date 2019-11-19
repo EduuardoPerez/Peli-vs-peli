@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 
 // Rutas
 app.get('/competencias', controlador.obtenerCompetencias);
+app.get('/competencias/:id/peliculas', controlador.obtenerOpciones);
 
 
 // Puerto donde corre el servidor
