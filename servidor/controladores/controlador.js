@@ -24,7 +24,7 @@ const obtenerCompetencias = async (req, res) => {
   const competencias = await ejecutarQuery(sql, 'las competencias');
 
   if(competencias===404){
-    return res.status(competencia).send('Hubo un error en la consulta para obtener las competencias');
+    return res.status(competencias).send('Hubo un error en la consulta para obtener las competencias');
   }
   res.send(JSON.stringify(competencias));
 };
@@ -33,18 +33,28 @@ const obtenerCompetencias = async (req, res) => {
 // Se obtienen las opciones por las que puede votar el usuario
 const obtenerOpciones = async (req, res) => {
 
-  const peliculaId = req.params.id;
+  const competenciaId = req.params.id;
 
-  const sql = `SELECT competencia.nombre AS competencia, pelicula.id, pelicula.poster, pelicula.titulo
-                FROM competencia
-                JOIN pelicula_competencia ON competencia.id = pelicula_competencia.competencia_id
-                JOIN pelicula ON pelicula.id = pelicula_competencia.pelicula_id
-                WHERE pelicula_competencia.competencia_id = ${peliculaId};`
+  const sqlCompetencia = `SELECT competencia.nombre AS competencia
+                            FROM competencia
+                            WHERE competencia.id = ${competenciaId};`;
 
-  const opciones = await ejecutarQuery(sql, 'opciones por las que puede votar el usuario');
-  console.log(opciones);
-  
-  
+  const sqlPeliculas = `SELECT pelicula.id, pelicula.poster, pelicula.titulo
+                          FROM pelicula
+                          JOIN pelicula_competencia ON pelicula.id = pelicula_competencia.pelicula_id
+                          WHERE pelicula_competencia.competencia_id = ${competenciaId};`;
+
+  const competencia = await ejecutarQuery(sqlCompetencia, 'el nombre de la competencia');
+  const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia')
+
+  if(competencia===404 || peliculas===404){
+    return res.status(opciones).send('Hubo un error en la consulta para obtener las opciones');
+  }
+  const respuesta = {
+    "competencia": competencia[0].competencia,
+    "peliculas": peliculas
+  }  
+  res.send(JSON.stringify(respuesta));
 };
 
 module.exports = {
