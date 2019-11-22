@@ -106,8 +106,44 @@ const sumarVoto = async (req, res) => {
   return res.status(200).send('Se sumo el voto a la pelicula');
 };
 
+
+// Se obtienen los resultados de las competencias
+const obtenerResultados = async (req, res) => {
+  
+  const competenciaId = req.params.id;
+  const sqlCompetencia = `SELECT nombre FROM competencia WHERE id = ${competenciaId}`;
+  const competencia = await ejecutarQuery(sqlCompetencia, 'el nombre de la competencia');
+
+  if(competencia===404){
+    return res.status(competencia).send('Hubo un error en la consulta para obtener el nombre de la competencia');
+  }
+
+  const nombreCompetencia = competencia[0].nombre;
+
+  const sqlVotos = `SELECT voto.pelicula_id, voto.cantidad AS votos, pelicula.poster, pelicula.titulo
+                    FROM voto
+                    JOIN pelicula ON pelicula.id = voto.pelicula_id
+                    AND competencia_id = ${competenciaId}
+                    ORDER BY voto.cantidad DESC
+                    LIMIT 3;`
+
+  const votos = await ejecutarQuery(sqlVotos, 'obtener las 3 peliculas con mas votos de la competencia');
+
+  if(votos===404){
+    return res.status(votos).send('Hubo un error en la consulta para obtener las 3 peliculas con mas votos de la competencia');
+  }
+  
+  const respuesta = {
+    "competencia": nombreCompetencia,
+    "resultados": votos
+  }  
+  return res.status(200).send(JSON.stringify(respuesta));
+};
+
+
 module.exports = {
   obtenerCompetencias: obtenerCompetencias,
   obtenerOpciones: obtenerOpciones,
-  sumarVoto: sumarVoto
+  sumarVoto: sumarVoto,
+  obtenerResultados: obtenerResultados
 };
