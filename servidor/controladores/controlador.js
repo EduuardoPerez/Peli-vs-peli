@@ -70,9 +70,9 @@ const sumarVoto = async (req, res) => {
   const peliculaId = req.body.idPelicula;
 
   sqlCompetenciaPelicula = `SELECT id FROM pelicula_competencia WHERE competencia_id = ${competenciaId} AND pelicula_id = ${peliculaId};` 
-  const existeCompetencia = await ejecutarQuery(sqlCompetenciaPelicula, 'la compencia según la película');
+  const existeCompetencia = await ejecutarQuery(sqlCompetenciaPelicula, 'la compentencia según la película');
 
-  if(!existeCompetencia){
+  if(existeCompetencia.length===0){
     return res.status(404).send('No exite la competencia');
   }
 
@@ -114,8 +114,8 @@ const obtenerResultados = async (req, res) => {
   const sqlCompetencia = `SELECT nombre FROM competencia WHERE id = ${competenciaId}`;
   const competencia = await ejecutarQuery(sqlCompetencia, 'el nombre de la competencia');
 
-  if(competencia===404){
-    return res.status(competencia).send('Hubo un error en la consulta para obtener el nombre de la competencia');
+  if(competencia===404 || competencia.length===0){
+    return res.status(404).send('Hubo un error en la consulta para obtener el nombre de la competencia o no existe la competencia');
   }
 
   const nombreCompetencia = competencia[0].nombre;
@@ -132,6 +132,9 @@ const obtenerResultados = async (req, res) => {
   if(votos===404){
     return res.status(votos).send('Hubo un error en la consulta para obtener las 3 peliculas con mas votos de la competencia');
   }
+  if(votos.length===0) {
+    return res.status(404).send('No existe la competencia o no se ha votado en la misma');
+  }
   
   const respuesta = {
     "competencia": nombreCompetencia,
@@ -141,9 +144,58 @@ const obtenerResultados = async (req, res) => {
 };
 
 
+// Se obtienen todos los generos de las peliculas
+const obtenerGeneros = async (req, res) => {
+  const sql = `select id, nombre from genero;`;
+  const generos = await ejecutarQuery(sql, 'los generos');
+
+  if(generos===404 || generos.length===0){
+    return res.status(404).send('Hubo un error en la consulta para obtener los generos o no hay generos guardados');
+  }
+  return res.status(200).send(JSON.stringify(generos));
+};
+
+
+// Se obtienen todos los directores de las peliculas
+const obtenerDirectores = async (req, res) => {
+  const sql = `select id, nombre from director;`;
+  const generos = await ejecutarQuery(sql, 'los directores');
+
+  if(generos===404 || generos.length===0){
+    return res.status(404).send('Hubo un error en la consulta para obtener los directores o no hay generos guardados');
+  }
+  return res.status(200).send(JSON.stringify(generos));
+};
+
+
+// Se obtienen todos los actores de las peliculas
+const obtenerActores = async (req, res) => {
+  const sql = `select id, nombre from actor;`;
+  const generos = await ejecutarQuery(sql, 'los actores');
+
+  if(generos===404 || generos.length===0){
+    return res.status(404).send('Hubo un error en la consulta para obtener los actores o no hay generos guardados');
+  }
+  return res.status(200).send(JSON.stringify(generos));
+};
+
+
+// Permite al usuario crear una competencia nueva
+const crearCompetencia = (req, res) => {
+  console.log('Query', req.query);
+  console.log('Params', req.params);
+  console.log('Body', req.body);
+  
+};
+
+
 module.exports = {
   obtenerCompetencias: obtenerCompetencias,
   obtenerOpciones: obtenerOpciones,
   sumarVoto: sumarVoto,
-  obtenerResultados: obtenerResultados
+  obtenerResultados: obtenerResultados,
+  obtenerGeneros: obtenerGeneros,
+  obtenerDirectores: obtenerDirectores,
+  obtenerActores: obtenerActores,
+  crearCompetencia: crearCompetencia
 };
