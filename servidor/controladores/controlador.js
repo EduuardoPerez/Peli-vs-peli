@@ -213,16 +213,92 @@ const obtenerActores = async (req, res) => {
 
 // Permite al usuario crear una competencia nueva
 const crearCompetencia = async (req, res) => {
-  // console.log('Body', req.body);
+  console.log('Body', req.body);
 
   const nombreCompetencia = req.body.nombre;
-  const generoIdCompetencia = req.body.genero;
+  const generoId = parseInt(req.body.genero);
+  const directorId = parseInt(req.body.director);
+  const actorId = parseInt(req.body.actor);
+
+  console.log('generoId',generoId, typeof generoId);
+  console.log('directorId',directorId, typeof directorId);
+  console.log('actorId',actorId, typeof actorId);
+  
+  if(nombreCompetencia==='' || nombreCompetencia===null || nombreCompetencia===undefined){
+    return res.status(422).send('La competencia debe tener un nombre asignado');
+  }
 
   const sqlExiste = `SELECT nombre FROM competencia WHERE competencia.nombre = '${nombreCompetencia}';`;
   const existeCompetencia = await ejecutarQuery(sqlExiste, 'competencia existente');
 
+  if(existeCompetencia===500){
+    return res.status(500).send('Hubo un error al consultar las competencias');
+  }
   if(existeCompetencia.length!==0){
     return res.status(422).send('Ya existe una competencia con el nombre indicado');
+  }
+  
+  if(directorId!==0 && generoId!==0){
+    const sqlDirectorGenero = `SELECT COUNT(pelicula.id) AS cantidad
+                                FROM pelicula
+                                JOIN director ON pelicula.director = director.nombre
+                                WHERE pelicula.genero_id = ${generoId};`;
+
+    const existePelicula = await ejecutarQuery(sqlDirectorGenero, 'pelicula con genero y director');
+    if (existePelicula===500) {
+      return res.status(500).send('Hubo un erro al consultar si existen peliculas según el director y genero');
+    }
+    if(existePelicula[0].cantidad<2){
+      return res.status(422).send('No existen suficientes peliculas del genero y director seleccionado como para crear una competencia');
+    }
+  }
+  if(directorId!==0 && actorId!==0){
+    const sqlDirectorActor = `SELECT COUNT(pelicula.id) AS cantidad
+                                FROM pelicula
+                                JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
+                                JOIN director ON pelicula.director = director.nombre
+                                WHERE actor_pelicula.actor_id = ${actorId}
+                                  AND director.id = ${directorId};`;
+
+    const existePelicula = await ejecutarQuery(sqlDirectorActor, 'pelicula con actor y director');
+    if (existePelicula===500) {
+      return res.status(500).send('Hubo un erro al consultar si existen peliculas según el director y actor');
+    }
+    if(existePelicula[0].cantidad<2){
+      return res.status(422).send('No existen suficientes peliculas del actor y director seleccionado como para crear una competencia');    
+    }
+  }
+  if(generoId!==0 && actorId!==0){
+    const sqlGeneroActor = `SELECT COUNT(pelicula.id) AS cantidad
+                              FROM pelicula
+                              JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
+                              WHERE actor_pelicula.actor_id = ${actorId}
+                                AND pelicula.genero_id = ${generoId};`;
+
+    const existePelicula = await ejecutarQuery(sqlGeneroActor, 'pelicula con genero y actor');
+    if (existePelicula===500) {
+      return res.status(500).send('Hubo un erro al consultar si existen peliculas según el genero y actor');
+    }
+    if(existePelicula[0].cantidad<2){
+      return res.status(422).send('No existen suficientes peliculas del genero y actor seleccionado como para crear una competencia');
+    }
+  }
+  if(directorId!==0 && generoId!==0 && actorId!==0){
+    const sqlDirectorGeneroActor = `SELECT COUNT(pelicula.id) AS cantidad
+                                      FROM pelicula
+                                      JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
+                                      JOIN director ON pelicula.director = director.nombre
+                                      WHERE actor_pelicula.actor_id = ${actorId}
+                                        AND pelicula.genero_id = ${generoId}
+                                        AND director.id = ${generoId};`;
+
+    const existePelicula = await ejecutarQuery(sqlDirectorGeneroActor, 'pelicula con genero, actor y director');
+    if (existePelicula===500) {
+      return res.status(500).send('Hubo un erro al consultar si existen peliculas según el director genero y actor');
+    }
+    if(existePelicula[0].cantidad<2){
+      return res.status(422).send('No existen suficientes peliculas del actor, genero y director seleccionado como para crear una competencia');
+    }
   }
 
   const sqlNuevoIdCompetencia = `SELECT id+1 AS id FROM competencia ORDER BY id DESC LIMIT 1;`;
@@ -233,7 +309,7 @@ const crearCompetencia = async (req, res) => {
   }
   
   const competenciaId = queryNuevoIdCompetencia[0].id;
-  const sqlInsertarCompetencia = `INSERT INTO competencia (id, nombre, genero_id) VALUES (${competenciaId}, '${nombreCompetencia}', ${generoIdCompetencia});`;
+  const sqlInsertarCompetencia = `INSERT INTO competencia (id, nombre, genero_id, actor_id, director_id) VALUES (${competenciaId}, '${nombreCompetencia}', ${generoId}, ${actorId}, ${directorId});`;
   const queryInsertarCompetencia = await ejecutarQuery(sqlInsertarCompetencia, 'INSERTAR LA NUEVA FILA EN LA TABLA competencia');
   
   if(queryInsertarCompetencia===500) {

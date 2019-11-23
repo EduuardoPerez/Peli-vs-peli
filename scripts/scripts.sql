@@ -67,3 +67,8 @@ UPDATE `competencias`.`competencia` SET `genero_id` = '5' WHERE (`id` = '8');
 UPDATE `competencias`.`competencia` SET `genero_id` = '0' WHERE (`id` = '9');
 UPDATE `competencias`.`competencia` SET `genero_id` = '3' WHERE (`id` = '10');
 
+
+ALTER TABLE `competencias`.`competencia` 
+ADD COLUMN `director_id` INT NULL DEFAULT 0 AFTER `genero_id`,
+ADD COLUMN `actor_id` INT NULL DEFAULT 0 AFTER `director_id`,
+CHANGE COLUMN `genero_id` `genero_id` INT(11) NULL DEFAULT 0 ;
