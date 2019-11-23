@@ -187,6 +187,8 @@ const crearCompetencia = async (req, res) => {
   console.log('Body', req.body);  
 
   const nombreCompetencia = req.body.nombre;
+  const generoIdCompetencia = req.body.genero;
+
   const sqlExiste = `SELECT nombre FROM competencia WHERE competencia.nombre = '${nombreCompetencia}';`;
   const existeCompetencia = await ejecutarQuery(sqlExiste, 'competencia existente');
 
@@ -202,7 +204,7 @@ const crearCompetencia = async (req, res) => {
   }
   
   const competenciaId = queryNuevoIdCompetencia[0].id;
-  const sqlInsertarCompetencia = `INSERT INTO competencia (id, nombre) VALUES (${competenciaId}, '${nombreCompetencia}');`;
+  const sqlInsertarCompetencia = `INSERT INTO competencia (id, nombre, genero_id) VALUES (${competenciaId}, '${nombreCompetencia}', ${generoIdCompetencia});`;
   const queryInsertarCompetencia = await ejecutarQuery(sqlInsertarCompetencia, 'INSERTAR LA NUEVA FILA EN LA TABLA competencia');
   
   if(queryInsertarCompetencia===404) {

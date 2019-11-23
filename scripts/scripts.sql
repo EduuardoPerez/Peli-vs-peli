@@ -50,3 +50,7 @@ CREATE TABLE `competencias`.`voto` (
   `pelicula_id` INT NOT NULL,
   `competencia_id` INT NOT NULL,
   PRIMARY KEY (`id`));
+
+
+ALTER TABLE `competencias`.`competencia` 
+ADD COLUMN `genero_id` INT NULL AFTER `nombre`;
