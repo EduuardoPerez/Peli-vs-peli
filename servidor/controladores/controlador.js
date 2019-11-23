@@ -212,6 +212,28 @@ const crearCompetencia = async (req, res) => {
 };
 
 
+// Se eliminan los votos de la competencia según su ID
+const eliminarVotos = async (req, res) => {
+  
+  const competenciaId = req.params.id;
+
+  sqlCompetenciaPelicula = `SELECT id FROM competencia WHERE competencia.id = ${competenciaId};`;
+  const existeCompetencia = await ejecutarQuery(sqlCompetenciaPelicula, 'la compentencia según su ID');
+
+  if(existeCompetencia.length===0){
+    return res.status(404).send('No exite la competencia');
+  }
+
+  const sqlReiniciarCantidadVoto = `UPDATE voto SET cantidad = 0 WHERE competencia_id = ${competenciaId};`;
+  const queryReiniciarCantidadVoto = await ejecutarQuery(sqlReiniciarCantidadVoto, 'REINICIAR la cantidad de votos');
+
+  if(queryReiniciarCantidadVoto===404) {
+    return res.status(404).send('No reiniciar la cantidad de votos');
+  }
+  return res.status(200).send('Se reinicio la cantidad de votos');
+};
+
+
 module.exports = {
   obtenerCompetencias: obtenerCompetencias,
   obtenerOpciones: obtenerOpciones,
@@ -220,5 +242,6 @@ module.exports = {
   obtenerGeneros: obtenerGeneros,
   obtenerDirectores: obtenerDirectores,
   obtenerActores: obtenerActores,
-  crearCompetencia: crearCompetencia
+  crearCompetencia: crearCompetencia,
+  eliminarVotos: eliminarVotos
 };

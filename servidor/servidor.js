@@ -23,6 +23,7 @@ app.post('/competencias', controlador.crearCompetencia);
 app.get('/generos', controlador.obtenerGeneros);
 app.get('/directores', controlador.obtenerActores);
 app.get('/actores', controlador.obtenerActores);
+app.delete('/competencias/:id/votos', controlador.eliminarVotos);
 
 
 // Puerto donde corre el servidor
