@@ -181,11 +181,34 @@ const obtenerActores = async (req, res) => {
 
 
 // Permite al usuario crear una competencia nueva
-const crearCompetencia = (req, res) => {
+const crearCompetencia = async (req, res) => {
   console.log('Query', req.query);
   console.log('Params', req.params);
-  console.log('Body', req.body);
+  console.log('Body', req.body);  
+
+  const nombreCompetencia = req.body.nombre;
+  const sqlExiste = `SELECT nombre FROM competencia WHERE competencia.nombre = '${nombreCompetencia}';`;
+  const existeCompetencia = await ejecutarQuery(sqlExiste, 'competencia existente');
+
+  if(existeCompetencia.length!==0){
+    return res.status(422).send('Ya existe una competencia con el nombre indicado');
+  }
+
+  const sqlNuevoIdCompetencia = `SELECT id+1 AS id FROM competencia ORDER BY id DESC LIMIT 1;`;
+  const queryNuevoIdCompetencia = await ejecutarQuery(sqlNuevoIdCompetencia, 'el último ID de la tabla competencia');
+
+  if(queryNuevoIdCompetencia===404) {
+    return res.status(404).send('No se pudo obtener nuevo id para hacer la insercion en la tabla competencia');
+  }
   
+  const competenciaId = queryNuevoIdCompetencia[0].id;
+  const sqlInsertarCompetencia = `INSERT INTO competencia (id, nombre) VALUES (${competenciaId}, '${nombreCompetencia}');`;
+  const queryInsertarCompetencia = await ejecutarQuery(sqlInsertarCompetencia, 'INSERTAR LA NUEVA FILA EN LA TABLA competencia');
+  
+  if(queryInsertarCompetencia===404) {
+    return res.status(404).send('No se pudo insertar la nueva competencia');
+  }
+  return res.status(200).send('Se creo la competencia');
 };
 
 
