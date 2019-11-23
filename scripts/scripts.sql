@@ -54,3 +54,16 @@ CREATE TABLE `competencias`.`voto` (
 
 ALTER TABLE `competencias`.`competencia` 
 ADD COLUMN `genero_id` INT NULL AFTER `nombre`;
+
+
+UPDATE `competencias`.`competencia` SET `genero_id` = '5' WHERE (`id` = '1');
+UPDATE `competencias`.`competencia` SET `genero_id` = '8' WHERE (`id` = '2');
+UPDATE `competencias`.`competencia` SET `genero_id` = '0' WHERE (`id` = '3');
+UPDATE `competencias`.`competencia` SET `genero_id` = '0' WHERE (`id` = '4');
+UPDATE `competencias`.`competencia` SET `genero_id` = '0' WHERE (`id` = '5');
+UPDATE `competencias`.`competencia` SET `genero_id` = '10' WHERE (`id` = '6');
+UPDATE `competencias`.`competencia` SET `genero_id` = '0' WHERE (`id` = '7');
+UPDATE `competencias`.`competencia` SET `genero_id` = '5' WHERE (`id` = '8');
+UPDATE `competencias`.`competencia` SET `genero_id` = '0' WHERE (`id` = '9');
+UPDATE `competencias`.`competencia` SET `genero_id` = '3' WHERE (`id` = '10');
+
