@@ -35,7 +35,7 @@ const obtenerOpciones = async (req, res) => {
 
   const competenciaId = req.params.id;
 
-  const sqlCompetencia = `SELECT competencia.nombre AS competencia, genero_id
+  const sqlCompetencia = `SELECT competencia.nombre AS competencia, genero_id, director_id, actor_id
                             FROM competencia
                             WHERE competencia.id = ${competenciaId};`;
   const competencia = await ejecutarQuery(sqlCompetencia, 'el nombre de la competencia');
@@ -44,16 +44,139 @@ const obtenerOpciones = async (req, res) => {
     return res.status(404).send('No existe la competencia para el ID indicado');
   }
 
-  const genero_id = competencia[0].genero_id;
+  const generoId = competencia[0].genero_id;
+  const directorId = competencia[0].director_id;
+  const actorId = competencia[0].actor_id;
 
-  if(genero_id!==0){
+  if(generoId!==0 && directorId===0 && actorId===0){
     const sqlPeliculas = `SELECT pelicula.id, pelicula.poster, pelicula.titulo
-                              FROM pelicula
-                              JOIN competencia ON pelicula.genero_id = competencia.genero_id
-                              WHERE pelicula.genero_id = ${genero_id}
-                              ORDER BY RAND()
-                              LIMIT 2;`;
-    const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia');
+                            FROM pelicula
+                            JOIN competencia ON pelicula.genero_id = competencia.genero_id
+                            WHERE pelicula.genero_id = ${generoId}
+                            ORDER BY RAND()
+                            LIMIT 2;`;
+    const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia por genero');
+
+    if(competencia===500 || peliculas===500){
+      return res.status(500).send('Hubo un error en la consulta para obtener las opciones');
+    }
+    const respuesta = {
+      "competencia": competencia[0].competencia,
+      "peliculas": peliculas
+    }
+    return res.status(200).send(JSON.stringify(respuesta));
+  }
+
+  if(generoId===0 && directorId!==0 && actorId===0){
+    const sqlPeliculas = `SELECT pelicula.id, pelicula.poster, pelicula.titulo
+                            FROM pelicula
+                            JOIN director ON pelicula.director = director.nombre
+                            WHERE director.id = ${directorId}
+                            ORDER BY RAND()
+                            LIMIT 2;`;
+    const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia por genero');
+
+    if(competencia===500 || peliculas===500){
+      return res.status(500).send('Hubo un error en la consulta para obtener las opciones');
+    }
+    const respuesta = {
+      "competencia": competencia[0].competencia,
+      "peliculas": peliculas
+    }
+    return res.status(200).send(JSON.stringify(respuesta));
+  }
+
+  if(generoId===0 && directorId===0 && actorId!==0){
+    const sqlPeliculas = `SELECT pelicula.id, pelicula.poster, pelicula.titulo
+                            FROM pelicula
+                            JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
+                            WHERE actor_pelicula.actor_id = ${actorId}
+                            ORDER BY RAND()
+                            LIMIT 2;`;
+    const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia por director');
+
+    if(competencia===500 || peliculas===500){
+      return res.status(500).send('Hubo un error en la consulta para obtener las opciones');
+    }
+    const respuesta = {
+      "competencia": competencia[0].competencia,
+      "peliculas": peliculas
+    }
+    return res.status(200).send(JSON.stringify(respuesta));
+  }
+  
+  if(generoId!==0 && directorId!==0 && actorId===0){
+    const sqlPeliculas = `SELECT pelicula.id, pelicula.poster, pelicula.titulo
+                            FROM pelicula
+                            JOIN director ON pelicula.director = director.nombre
+                            WHERE pelicula.genero_id = ${generoId}
+                            AND director.id = ${directorId}
+                            ORDER BY RAND()
+                            LIMIT 2;`;
+    const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia por genero y director');
+
+    if(competencia===500 || peliculas===500){
+      return res.status(500).send('Hubo un error en la consulta para obtener las opciones');
+    }
+    const respuesta = {
+      "competencia": competencia[0].competencia,
+      "peliculas": peliculas
+    }
+    return res.status(200).send(JSON.stringify(respuesta));
+  }
+  
+  if(generoId===0 && directorId!==0 && actorId!==0){
+    const sqlPeliculas = `SELECT pelicula.id, pelicula.poster, pelicula.titulo
+                            FROM pelicula
+                            JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
+                            JOIN director ON pelicula.director = director.nombre
+                            WHERE actor_pelicula.actor_id = ${actorId}
+                            AND director.id = ${directorId}
+                            ORDER BY RAND()
+                            LIMIT 2;`;
+    const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia por genero y director');
+
+    if(competencia===500 || peliculas===500){
+      return res.status(500).send('Hubo un error en la consulta para obtener las opciones');
+    }
+    const respuesta = {
+      "competencia": competencia[0].competencia,
+      "peliculas": peliculas
+    }
+    return res.status(200).send(JSON.stringify(respuesta));
+  }
+  
+  if(generoId!==0 && directorId===0 && actorId!==0){
+    const sqlPeliculas = `SELECT pelicula.id, pelicula.poster, pelicula.titulo
+                            FROM pelicula
+                            JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
+                            WHERE actor_pelicula.actor_id = ${actorId}
+                            AND pelicula.genero_id = ${generoId}
+                            ORDER BY RAND()
+                            LIMIT 2;`;
+    const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia por genero y director');
+
+    if(competencia===500 || peliculas===500){
+      return res.status(500).send('Hubo un error en la consulta para obtener las opciones');
+    }
+    const respuesta = {
+      "competencia": competencia[0].competencia,
+      "peliculas": peliculas
+    }
+    return res.status(200).send(JSON.stringify(respuesta));
+  }
+  
+  if(generoId!==0 && directorId!==0 && actorId!==0){
+    const sqlPeliculas = `SELECT pelicula.id, pelicula.poster, pelicula.titulo
+                            FROM pelicula
+                            JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
+                            JOIN director ON pelicula.director = director.nombre
+                            WHERE actor_pelicula.actor_id = ${actorId}
+                            AND pelicula.genero_id = ${generoId}
+                            AND director.id = ${directorId}
+                            ORDER BY RAND()
+                            LIMIT 2;`;
+    const peliculas = await ejecutarQuery(sqlPeliculas, 'las peliculas de la competencia por genero y director');
 
     if(competencia===500 || peliculas===500){
       return res.status(500).send('Hubo un error en la consulta para obtener las opciones');
@@ -219,10 +342,6 @@ const crearCompetencia = async (req, res) => {
   const generoId = parseInt(req.body.genero);
   const directorId = parseInt(req.body.director);
   const actorId = parseInt(req.body.actor);
-
-  console.log('generoId',generoId, typeof generoId);
-  console.log('directorId',directorId, typeof directorId);
-  console.log('actorId',actorId, typeof actorId);
   
   if(nombreCompetencia==='' || nombreCompetencia===null || nombreCompetencia===undefined){
     return res.status(422).send('La competencia debe tener un nombre asignado');
@@ -238,11 +357,53 @@ const crearCompetencia = async (req, res) => {
     return res.status(422).send('Ya existe una competencia con el nombre indicado');
   }
   
-  if(directorId!==0 && generoId!==0){
+  if(directorId===0 && generoId!==0 && actorId===0){
+    const sqlDirectorGenero = `SELECT COUNT(pelicula.id) AS cantidad
+                                FROM pelicula
+                                WHERE pelicula.genero_id = ${generoId};`;
+
+    const existePelicula = await ejecutarQuery(sqlDirectorGenero, 'pelicula por genero');
+    if (existePelicula===500) {
+      return res.status(500).send('Hubo un erro al consultar si existen peliculas según el genero');
+    }
+    if(existePelicula[0].cantidad<2){
+      return res.status(422).send('No existen suficientes peliculas del genero seleccionado como para crear una competencia');
+    }
+  }
+  if(directorId!==0 && actorId===0 && generoId===0){
+    const sqlDirectorActor = `SELECT COUNT(pelicula.id) AS cantidad
+                                FROM pelicula
+                                JOIN director ON pelicula.director = director.nombre
+                                WHERE director.id = ${directorId};`;
+
+    const existePelicula = await ejecutarQuery(sqlDirectorActor, 'pelicula segun el director');
+    if (existePelicula===500) {
+      return res.status(500).send('Hubo un erro al consultar si existen peliculas según el director');
+    }
+    if(existePelicula[0].cantidad<2){
+      return res.status(422).send('No existen suficientes peliculas del director seleccionado como para crear una competencia');
+    }
+  }
+  if(directorId===0 && actorId!==0 && generoId===0){
+    const sqlDirectorActor = `SELECT COUNT(pelicula.id) AS cantidad
+                                FROM pelicula
+                                JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
+                                WHERE actor_pelicula.actor_id = ${actorId};`;
+
+    const existePelicula = await ejecutarQuery(sqlDirectorActor, 'pelicula segun el actor');
+    if (existePelicula===500) {
+      return res.status(500).send('Hubo un erro al consultar si existen peliculas según el actor');
+    }
+    if(existePelicula[0].cantidad<2){
+      return res.status(422).send('No existen suficientes peliculas del actor seleccionado como para crear una competencia');
+    }
+  }
+  if(directorId!==0 && generoId!==0 && actorId===0){
     const sqlDirectorGenero = `SELECT COUNT(pelicula.id) AS cantidad
                                 FROM pelicula
                                 JOIN director ON pelicula.director = director.nombre
-                                WHERE pelicula.genero_id = ${generoId};`;
+                                WHERE pelicula.genero_id = ${generoId}
+                                AND director.id = ${directorId};`;
 
     const existePelicula = await ejecutarQuery(sqlDirectorGenero, 'pelicula con genero y director');
     if (existePelicula===500) {
@@ -252,7 +413,7 @@ const crearCompetencia = async (req, res) => {
       return res.status(422).send('No existen suficientes peliculas del genero y director seleccionado como para crear una competencia');
     }
   }
-  if(directorId!==0 && actorId!==0){
+  if(directorId!==0 && actorId!==0 && generoId===0){
     const sqlDirectorActor = `SELECT COUNT(pelicula.id) AS cantidad
                                 FROM pelicula
                                 JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
@@ -268,7 +429,7 @@ const crearCompetencia = async (req, res) => {
       return res.status(422).send('No existen suficientes peliculas del actor y director seleccionado como para crear una competencia');    
     }
   }
-  if(generoId!==0 && actorId!==0){
+  if(generoId!==0 && actorId!==0 && directorId===0){
     const sqlGeneroActor = `SELECT COUNT(pelicula.id) AS cantidad
                               FROM pelicula
                               JOIN actor_pelicula ON pelicula.id = actor_pelicula.pelicula_id
@@ -290,7 +451,7 @@ const crearCompetencia = async (req, res) => {
                                       JOIN director ON pelicula.director = director.nombre
                                       WHERE actor_pelicula.actor_id = ${actorId}
                                         AND pelicula.genero_id = ${generoId}
-                                        AND director.id = ${generoId};`;
+                                        AND director.id = ${directorId};`;
 
     const existePelicula = await ejecutarQuery(sqlDirectorGeneroActor, 'pelicula con genero, actor y director');
     if (existePelicula===500) {
