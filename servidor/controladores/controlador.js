@@ -649,6 +649,31 @@ const eliminarCompetencia = async (req, res) => {
   return res.status(200).send('Se elimino la competencia');
 };
 
+// Edita el nombre de una competencia
+const editarCompetencia = async (req, res) => {
+  const competenciaId = req.params.id;
+  const competenciaNombre = req.body.nombre;
+  
+  
+  const sql = `SELECT * FROM competencia WHERE id = ${competenciaId};`;
+  const competencia = await ejecutarQuery(sql, 'competencia');
+
+  if(competencia===500){
+    return res.status(500).send('Hubo un error en la consulta verificar que existe la competencia antes de editarla');
+  }
+  if(competencia.length===0){
+    return res.status(404).send('No existe la competencia');
+  }
+
+  const sqlEditarComp = `UPDATE competencia SET nombre = '${competenciaNombre}' WHERE id = ${competenciaId};`;
+  const editarCompetencia = await ejecutarQuery(sqlEditarComp, 'eliminar competencia');
+
+  if(editarCompetencia===500){
+    return res.status(500).send('Hubo un error al intentar editar el nombre de la competencia');
+  }
+  return res.status(200).send('Se edito la competencia');
+};
+
 module.exports = {
   obtenerCompetencias: obtenerCompetencias,
   obtenerOpciones: obtenerOpciones,
@@ -660,5 +685,6 @@ module.exports = {
   obtenerActores: obtenerActores,
   crearCompetencia: crearCompetencia,
   eliminarVotos: eliminarVotos,
-  eliminarCompetencia: eliminarCompetencia
+  eliminarCompetencia: eliminarCompetencia,
+  editarCompetencia: editarCompetencia
 };

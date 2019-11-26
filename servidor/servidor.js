@@ -26,6 +26,7 @@ app.get('/directores', controlador.obtenerDirectores);
 app.get('/actores', controlador.obtenerActores);
 app.delete('/competencias/:id/votos', controlador.eliminarVotos);
 app.delete('/competencias/:id', controlador.eliminarCompetencia);
+app.put('/competencias/:id', controlador.editarCompetencia);
 
 
 // Puerto donde corre el servidor
