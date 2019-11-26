@@ -16,7 +16,6 @@ const ejecutarQuery = (query, descripcion) => {
   });
 };
 
-
 // Se obtienen las competencias de la BD
 const obtenerCompetencias = async (req, res) => {
 
@@ -28,7 +27,6 @@ const obtenerCompetencias = async (req, res) => {
   }
   return res.status(200).send(JSON.stringify(competencias));
 };
-
 
 // Se obtienen las opciones por las que puede votar el usuario
 const obtenerOpciones = async (req, res) => {
@@ -204,7 +202,6 @@ const obtenerOpciones = async (req, res) => {
   return res.status(200).send(JSON.stringify(respuesta));
 };
 
-
 // Suma un voto a la pelicula según la competencia en la que esté
 const sumarVoto = async (req, res) => {
 
@@ -248,7 +245,6 @@ const sumarVoto = async (req, res) => {
   return res.status(200).send('Se sumo el voto a la pelicula');
 };
 
-
 // Se obtienen los resultados de las competencias
 const obtenerResultados = async (req, res) => {
   
@@ -288,6 +284,129 @@ const obtenerResultados = async (req, res) => {
   return res.status(200).send(JSON.stringify(respuesta));
 };
 
+// Se obtienen los detalles de una competencia
+const obtenerDetalleCompetencia = async (req, res) => {
+  const competenciaId = req.params.id;
+  
+  const sql = `SELECT * FROM competencia WHERE id = ${competenciaId};`;
+  const competencia = await ejecutarQuery(sql, 'competencia');
+
+  if(competencia===500){
+    return res.status(500).send('Hubo un error en la consulta para el detalle de la competencia');
+  }
+  if(competencia.length===0){
+    return res.status(404).send('No existe la competencia');
+  }
+  
+  const generoId = competencia[0].genero_id;
+  const directorId = competencia[0].director_id;
+  const actorId = competencia[0].actor_id;
+
+  if (generoId===0 && directorId===0 && actorId===0) {
+    return res.status(200).send(JSON.stringify(competencia[0]));
+  }
+  if (generoId!==0 && directorId===0 && actorId===0) {
+    const sql = `SELECT competencia.nombre,
+                  genero.nombre AS genero_nombre
+                  FROM competencia
+                  JOIN genero ON competencia.genero_id = genero.id
+                  WHERE competencia.id = ${competenciaId};`;
+    const competencia = await ejecutarQuery(sql, 'competencia');
+
+    if(competencia===500){
+      return res.status(500).send('Hubo un error en la consulta para el detalle de la competencia');
+    }
+    return res.status(200).send(JSON.stringify(competencia[0]));
+  }
+  if (generoId===0 && directorId!==0 && actorId===0) {
+    const sql = `SELECT competencia.nombre,
+                  director.nombre AS director_nombre
+                  FROM competencia
+                  JOIN director ON competencia.director_id = director.id
+                  WHERE competencia.id = ${competenciaId};`;
+    const competencia = await ejecutarQuery(sql, 'competencia');
+
+    if(competencia===500){
+      return res.status(500).send('Hubo un error en la consulta para el detalle de la competencia');
+    }
+    return res.status(200).send(JSON.stringify(competencia[0]));
+  }
+  if (generoId===0 && directorId===0 && actorId!==0) {
+    const sql = `SELECT competencia.nombre,
+                  actor.nombre AS actor_nombre
+                  FROM competencia
+                  JOIN actor ON competencia.actor_id = actor.id
+                  WHERE competencia.id = ${competenciaId};`;
+    const competencia = await ejecutarQuery(sql, 'competencia');
+
+    if(competencia===500){
+      return res.status(500).send('Hubo un error en la consulta para el detalle de la competencia');
+    }
+    return res.status(200).send(JSON.stringify(competencia[0]));
+  }
+  if (generoId!==0 && directorId!==0 && actorId===0) {
+    const sql = `SELECT competencia.nombre,
+                  genero.nombre AS genero_nombre,
+                  director.nombre AS director_nombre
+                  FROM competencia
+                  JOIN genero ON competencia.genero_id = genero.id
+                  JOIN director ON competencia.director_id = director.id
+                  WHERE competencia.id = ${competenciaId};`;
+    const competencia = await ejecutarQuery(sql, 'competencia');
+
+    if(competencia===500){
+      return res.status(500).send('Hubo un error en la consulta para el detalle de la competencia');
+    }
+    return res.status(200).send(JSON.stringify(competencia[0]));
+  }
+  if (generoId!==0 && directorId===0 && actorId!==0) {
+    const sql = `SELECT competencia.nombre,
+                  genero.nombre AS genero_nombre,
+                  actor.nombre AS actor_nombre
+                  FROM competencia
+                  JOIN genero ON competencia.genero_id = genero.id
+                  JOIN actor ON competencia.actor_id = actor.id
+                  WHERE competencia.id = ${competenciaId};`;
+    const competencia = await ejecutarQuery(sql, 'competencia');
+
+    if(competencia===500){
+      return res.status(500).send('Hubo un error en la consulta para el detalle de la competencia');
+    }
+    return res.status(200).send(JSON.stringify(competencia[0]));
+  }
+  if (generoId===0 && directorId!==0 && actorId!==0) {
+    const sql = `SELECT competencia.nombre,
+                  actor.nombre AS actor_nombre,
+                  director.nombre AS director_nombre
+                  FROM competencia
+                  JOIN actor ON competencia.actor_id = actor.id
+                  JOIN director ON competencia.director_id = director.id
+                  WHERE competencia.id = ${competenciaId};`;
+    const competencia = await ejecutarQuery(sql, 'competencia');
+
+    if(competencia===500){
+      return res.status(500).send('Hubo un error en la consulta para el detalle de la competencia');
+    }
+    return res.status(200).send(JSON.stringify(competencia[0]));
+  }
+  if (generoId!==0 && directorId!==0 && actorId!==0) {
+    const sql = `SELECT competencia.nombre,
+                  genero.nombre AS genero_nombre,
+                  actor.nombre AS actor_nombre,
+                  director.nombre AS director_nombre
+                  FROM competencia
+                  JOIN genero ON competencia.genero_id = genero.id
+                  JOIN actor ON competencia.actor_id = actor.id
+                  JOIN director ON competencia.director_id = director.id
+                  WHERE competencia.id = ${competenciaId};`;
+    const competencia = await ejecutarQuery(sql, 'competencia');
+
+    if(competencia===500){
+      return res.status(500).send('Hubo un error en la consulta para el detalle de la competencia');
+    }
+    return res.status(200).send(JSON.stringify(competencia[0]));
+  }
+};
 
 // Se obtienen todos los generos de las peliculas
 const obtenerGeneros = async (req, res) => {
@@ -303,7 +422,6 @@ const obtenerGeneros = async (req, res) => {
   return res.status(200).send(JSON.stringify(generos));
 };
 
-
 // Se obtienen todos los directores de las peliculas
 const obtenerDirectores = async (req, res) => {
   const sql = `select id, nombre from director;`;
@@ -317,7 +435,6 @@ const obtenerDirectores = async (req, res) => {
   }
   return res.status(200).send(JSON.stringify(directores));
 };
-
 
 // Se obtienen todos los actores de las peliculas
 const obtenerActores = async (req, res) => {
@@ -333,10 +450,8 @@ const obtenerActores = async (req, res) => {
   return res.status(200).send(JSON.stringify(actores));
 };
 
-
 // Permite al usuario crear una competencia nueva
 const crearCompetencia = async (req, res) => {
-  console.log('Body', req.body);
 
   const nombreCompetencia = req.body.nombre;
   const generoId = parseInt(req.body.genero);
@@ -479,7 +594,6 @@ const crearCompetencia = async (req, res) => {
   return res.status(200).send('Se creo la competencia');
 };
 
-
 // Se eliminan los votos de la competencia según su ID
 const eliminarVotos = async (req, res) => {
   
@@ -501,15 +615,50 @@ const eliminarVotos = async (req, res) => {
   return res.status(200).send('Se reinicio la cantidad de votos');
 };
 
+// Se encarga de eliminar una competencia
+const eliminarCompetencia = async (req, res) => {
+  const competenciaId = req.params.id;
+  
+  const sql = `SELECT * FROM competencia WHERE id = ${competenciaId};`;
+  const competencia = await ejecutarQuery(sql, 'competencia');
+
+  if(competencia===500){
+    return res.status(500).send('Hubo un error en la consulta verificar que existe la competencia antes de eliminarla');
+  }
+  if(competencia.length===0){
+    return res.status(404).send('No existe la competencia');
+  }
+
+  const sqlDelCompetencia = `DELETE FROM competencia WHERE id = ${competenciaId};`;
+  const sqlDelVoto = `DELETE FROM voto WHERE competencia_id = ${competenciaId};`;
+  const sqlDelPeliComp = `DELETE FROM pelicula_competencia WHERE competencia_id = ${competenciaId};`;
+  
+  const delCompetencia = await ejecutarQuery(sqlDelCompetencia, 'eliminar competencia');
+  const delVoto = await ejecutarQuery(sqlDelVoto, 'eliminar votos');
+  const delPeliComp = await ejecutarQuery(sqlDelPeliComp, 'eliminar pelicula_competencia');
+
+  if(delCompetencia===500){
+    return res.status(500).send('Hubo un error al intentar borrar la competencia');
+  }
+  if(delVoto===500){
+    return res.status(500).send('Hubo un error al intentar borrar los votos de la competencia');
+  }
+  if(delPeliComp===500){
+    return res.status(500).send('Hubo un error al intentar borrar la fila de la competencia de pelicula_competencia');
+  }
+  return res.status(200).send('Se elimino la competencia');
+};
 
 module.exports = {
   obtenerCompetencias: obtenerCompetencias,
   obtenerOpciones: obtenerOpciones,
   sumarVoto: sumarVoto,
   obtenerResultados: obtenerResultados,
+  obtenerDetalleCompetencia: obtenerDetalleCompetencia,
   obtenerGeneros: obtenerGeneros,
   obtenerDirectores: obtenerDirectores,
   obtenerActores: obtenerActores,
   crearCompetencia: crearCompetencia,
-  eliminarVotos: eliminarVotos
+  eliminarVotos: eliminarVotos,
+  eliminarCompetencia: eliminarCompetencia
 };
